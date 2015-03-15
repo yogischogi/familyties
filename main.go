@@ -8,7 +8,7 @@ import (
 	"os"
 	"sort"
 
-	"code.google.com/p/familyties/cousins"
+	"github.com/yogischogi/familyties/cousins"
 )
 
 func main() {
