@@ -10,7 +10,7 @@ Finder matches files. You can use it to
 * see which surnames are most frequent in your family. 
 
 
-# Documentation
+## Documentation
 
 * [User Guide](https://github.com/yogischogi/familyties/blob/master/doc/familyties.pdf?raw=true)
 * [Source Code](http://godoc.org/github.com/yogischogi/familyties)
