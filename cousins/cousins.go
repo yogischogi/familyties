@@ -2,9 +2,10 @@
 package cousins
 
 import (
+	"bytes"
 	"encoding/csv"
 	"errors"
-	"os"
+	"io/ioutil"
 	"strings"
 )
 
@@ -268,14 +269,23 @@ type Ancestries []Ancestry
 // The file must be in CSV format. namesCol is the number of the column
 // that contains the ancestral informations.
 func NewAncestries(filename string, namesCol int) (Ancestries, error) {
-	infile, err := os.Open(filename)
+	// Read whole file.
+	inbytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	defer infile.Close()
 
-	// Read all CSV records from file.
-	csvReader := csv.NewReader(infile)
+	// Check if file contains UTF8 byte order mark and drop it if necessary.
+	var dataReader *bytes.Reader
+	BOM := []byte{0xEF, 0xBB, 0xBF}
+	if bytes.Compare(inbytes[:3], BOM) == 0 {
+		dataReader = bytes.NewReader(inbytes[3:])
+	} else {
+		dataReader = bytes.NewReader(inbytes)
+	}
+
+	// Read all CSV records from UTF8 buffer.
+	csvReader := csv.NewReader(dataReader)
 	records, err := csvReader.ReadAll()
 	if err != nil {
 		return nil, err

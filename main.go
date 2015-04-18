@@ -13,7 +13,7 @@ import (
 
 func main() {
 	var (
-		namescol = flag.Int("namescol", 9, "Column number for cousin names in CSV file.")
+		namescol = flag.Int("namescol", 12, "Column number for cousin names in CSV file.")
 		details  = flag.Bool("details", false, "Performs detailed analysis for locations and surnames.")
 		min      = flag.Int("min", 1, "Prints only locations and names that occur at least min times.")
 		cluster  = flag.String("cluster", "", "Performs cluster analysis on the cousins who's ancestral surnames or locations match cluster.")
