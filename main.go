@@ -15,8 +15,9 @@ func main() {
 	var (
 		namescol = flag.Int("namescol", 12, "Column number for cousin names in CSV file.")
 		details  = flag.Bool("details", false, "Performs detailed analysis for locations and surnames.")
-		min      = flag.Int("min", 1, "Prints only locations and names that occur at least min times.")
-		cluster  = flag.String("cluster", "", "Performs cluster analysis on the cousins who's ancestral surnames or locations match cluster.")
+		min      = flag.Int("min", 1, "Prints only locations and names that occur at least <min> times.")
+		cluster  = flag.String("cluster", "", "Performs cluster analysis on the cousins who's ancestral surnames or locations match <cluster>.")
+		exclude  = flag.String("exclude", "", "Excludes cousins who's ancestral surnames or locations match <exclude>.")
 	)
 	flag.Parse()
 	filename := os.Args[len(os.Args)-1]
@@ -26,6 +27,12 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error reading Family Finder matches CSV file %v.\n", err)
 		os.Exit(1)
+	}
+
+	// Exclude
+	if *exclude != "" {
+		fmt.Printf("Cousins who's ancestral surnames or locations match %v are excluded from analysis.\r\n\r\n", *exclude)
+		ancestries = ancestries.Exclude(*exclude)
 	}
 
 	// Filter ancestral information for cluster analysis.

@@ -105,12 +105,15 @@ func (a *Ancestry) Contains(name string) bool {
 	return false
 }
 
-// normalizeTokens brings the given token to a normalized form.
+// normalizeTokens transforms the given tokens into a normalized form.
 // Abbreviations are expanded, some words are translated into English,
 // and junk is thrown away. The tokens should be converted to lower case
 // before calling this function.
 func normalizeTokens(tokens []string) []string {
 	result := make([]string, 0, len(tokens))
+
+	// dirtyTags is a map of tokens that are transformed
+	// into the normalized form.
 	dirtyTags := map[string][]string{
 		"gt":                       {}, // part of &gt;
 		"amp":                      {}, // part of &amp;
@@ -173,6 +176,57 @@ func normalizeTokens(tokens []string) []string {
 		"wi":                       {"wisconsin", "usa"},
 		"wv":                       {"west virginia", "usa"},
 		"wy":                       {"wyoming", "usa"},
+		"alabama":                  {"alabama", "usa"},
+		"alaska":                   {"alaska", "usa"},
+		"arkansas":                 {"arkansas", "usa"},
+		"arizona":                  {"arizona", "usa"},
+		"california":               {"california", "usa"},
+		"colorado":                 {"colorado", "usa"},
+		"connecticut":              {"connecticut", "usa"},
+		"delaware":                 {"delaware", "usa"},
+		"district of columbia":     {"district of columbia", "usa"},
+		"florida":                  {"florida", "usa"},
+		"georgia usa":              {"georgia usa", "usa"},
+		"hawaii":                   {"hawaii", "usa"},
+		"iowa":                     {"iowa", "usa"},
+		"idaho":                    {"idaho", "usa"},
+		"illinois":                 {"illinois", "usa"},
+		"indiana":                  {"indiana", "usa"},
+		"kentucky":                 {"kentucky", "usa"},
+		"kansas":                   {"kansas", "usa"},
+		"louisiana":                {"louisiana", "usa"},
+		"massachusetts":            {"massachusetts", "usa"},
+		"maryland":                 {"maryland", "usa"},
+		"maine":                    {"maine", "usa"},
+		"michigan":                 {"michigan", "usa"},
+		"missouri":                 {"missouri", "usa"},
+		"minnesota":                {"minnesota", "usa"},
+		"mississippi":              {"mississippi", "usa"},
+		"montana":                  {"montana", "usa"},
+		"north carolina":           {"north carolina", "usa"},
+		"north dakota":             {"north dakota", "usa"},
+		"nebraska":                 {"nebraska", "usa"},
+		"new hampshire":            {"new hampshire", "usa"},
+		"new jersey":               {"new jersey", "usa"},
+		"new mexico":               {"new mexico", "usa"},
+		"nevada":                   {"nevada", "usa"},
+		"new york":                 {"new york", "usa"},
+		"ohio":                     {"ohio", "usa"},
+		"oklahoma":                 {"oklahoma", "usa"},
+		"oregon":                   {"oregon", "usa"},
+		"pennsylvania":             {"pennsylvania", "usa"},
+		"rhode island":             {"rhode island", "usa"},
+		"south carolina":           {"south carolina", "usa"},
+		"south dakota":             {"south dakota", "usa"},
+		"tennessee":                {"tennessee", "usa"},
+		"texas":                    {"texas", "usa"},
+		"utah":                     {"utah", "usa"},
+		"virginia":                 {"virginia", "usa"},
+		"vermont":                  {"vermont", "usa"},
+		"washington":               {"washington", "usa"},
+		"wisconsin":                {"wisconsin", "usa"},
+		"west virginia":            {"west virginia", "usa"},
+		"wyoming":                  {"wyoming", "usa"},
 		"danmark":                  {"denmark"},
 		"deutschland":              {"germany"},
 		"pommern":                  {"pomerania"},
@@ -389,6 +443,18 @@ func (a *Ancestries) Filter(name string) Ancestries {
 	result := make([]Ancestry, 0, len(*a))
 	for _, ancestry := range *a {
 		if ancestry.Contains(name) {
+			result = append(result, ancestry)
+		}
+	}
+	return result
+}
+
+// Exclude returns only those Ancestries who's ancestral surnames
+// or locations do not contain name.")
+func (a *Ancestries) Exclude(name string) Ancestries {
+	result := make([]Ancestry, 0, len(*a))
+	for _, ancestry := range *a {
+		if !ancestry.Contains(name) {
 			result = append(result, ancestry)
 		}
 	}

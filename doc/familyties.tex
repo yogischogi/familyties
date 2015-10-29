@@ -59,9 +59,12 @@ Familyties is a command line program. It is invoked by
 \item[-details] Performs detailed analysis for locations
   and surnames.
 \item[-min] Prints only locations and names that occur at
-  least min times.
+  least \texttt{<min>} times.
 \item[-cluster] Performs cluster analysis on the cousins
-  who's ancestral surnames or locations match cluster.
+  who's ancestral surnames or locations match \texttt{<cluster>}.
+\item[-exclude] Excludes cousins who's ancestral surnames or
+  locations match \texttt{<exclude>}. 
+
 \end{description}
 
 
@@ -139,6 +142,13 @@ may not always be the latest version.
    \texttt{familyties -details\\ N123456\_Family\_Finder\_Matches\_20140920.csv}
 \item Show only ancestral names that occur at least five times:\\
    \texttt{familyties -details -min=5\\ N123456\_Family\_Finder\_Matches\_20140920.csv}
+\item Show how many of your cousins have ancestry from which
+   country, but exclude all who have ancestry from the USA:\\
+   \texttt{familyties -exclude usa N123456\_Family\_Finder\_Matches\_20140920.csv}\\
+   Because of the large migrations from Europe to the USA the results
+   are often significantly distorted if you want to find out something
+   about your European ancestry only. In this case the exclude option
+   is very useful.
 \end{enumerate}
 
 
