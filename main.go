@@ -18,6 +18,7 @@ func main() {
 		min      = flag.Int("min", 1, "Prints only locations and names that occur at least <min> times.")
 		cluster  = flag.String("cluster", "", "Performs cluster analysis on the cousins who's ancestral surnames or locations match <cluster>.")
 		exclude  = flag.String("exclude", "", "Excludes cousins who's ancestral surnames or locations match <exclude>.")
+		csvout   = flag.String("csvout", "", "Writes countries and frequencies of cousins to a file in CSV format.")
 	)
 	flag.Parse()
 	filename := os.Args[len(os.Args)-1]
@@ -53,6 +54,39 @@ func main() {
 	for i := 0; i < countries.Len(); i++ {
 		if countries[i].NCousins >= *min {
 			fmt.Printf("%v %v\r\n", countries[i].NCousins, countries[i].Name)
+		}
+	}
+
+	// Write countries and frequencies of cousins to a file in CSV format.
+	if *csvout != "" {
+		if *csvout == filename {
+			fmt.Print("Error, CSV filename identical to file containing family data.\r\n")
+		} else {
+			// Create a list of heatmap locations.
+			// US and USA are substituted by US state names.
+			locations := make(map[string]bool)
+			for _, country := range predefinedCountries {
+				locations[country] = true
+			}
+			for _, state := range USStates {
+				locations[state] = true
+			}
+			delete(locations, "US")
+			delete(locations, "USA")
+			regionList := []string{}
+			for loc := range locations {
+				regionList = append(regionList, loc)
+			}
+
+			// Calculate frequencies of cousins.
+			regionFreqs := ancestries.FrequenciesOf(regionList)
+			sort.Stable(sort.Reverse(&regionFreqs))
+
+			// Write result to file.
+			err = regionFreqs.WriteCSV(*csvout)
+			if err != nil {
+				fmt.Printf("Error writing countries to file in CSV format, %v.\r\n", err)
+			}
 		}
 	}
 

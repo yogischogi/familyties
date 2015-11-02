@@ -2,10 +2,13 @@
 package cousins
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -486,4 +489,34 @@ func (f *Frequencies) Less(i, j int) bool {
 
 func (f *Frequencies) Swap(i, j int) {
 	(*f)[i], (*f)[j] = (*f)[j], (*f)[i]
+}
+
+// WriteCSV writes the frequencies to a file as comma separated values.
+// It adds an header containing the captions "Location" and "Value".
+// Frequencies where NCousins == 0 are not written to file.
+func (f *Frequencies) WriteCSV(filename string) error {
+	// Open file.
+	outfile, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer outfile.Close()
+
+	// Write header.
+	writer := bufio.NewWriter(outfile)
+	_, err = writer.WriteString(fmt.Sprintf("%s,%s\r\n", "Location", "Value"))
+	if err != nil {
+		return err
+	}
+	// Write rows.
+	for _, freq := range *f {
+		if freq.NCousins > 0 {
+			_, err = writer.WriteString(fmt.Sprintf("%s,%d\r\n", freq.Name, freq.NCousins))
+			if err != nil {
+				return err
+			}
+		}
+	}
+	err = writer.Flush()
+	return err
 }

@@ -6,6 +6,7 @@
 \contentsline {subsection}{\numberline {3.2}Linux Mint}{3}{subsection.3.2}
 \contentsline {subsection}{\numberline {3.3}FreeBSD, Mac OS X}{3}{subsection.3.3}
 \contentsline {section}{\numberline {4}First Usage}{3}{section.4}
-\contentsline {section}{\numberline {5}Examples}{4}{section.5}
-\contentsline {section}{\numberline {6}Example Session}{4}{section.6}
-\contentsline {section}{\numberline {7}How You Can Help}{5}{section.7}
+\contentsline {section}{\numberline {5}How to Create a Heat Map}{4}{section.5}
+\contentsline {section}{\numberline {6}Examples}{4}{section.6}
+\contentsline {section}{\numberline {7}Example Session}{5}{section.7}
+\contentsline {section}{\numberline {8}How You Can Help}{6}{section.8}

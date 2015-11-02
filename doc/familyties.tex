@@ -1,4 +1,4 @@
-% familyties User Guide
+% Familyties User Guide
 %
 % For PDF output: pdflatex familyties.tex
 % For HTML output: plastex familyties.tex
@@ -58,13 +58,14 @@ Familyties is a command line program. It is invoked by
 \item[-help] Prints available program options.
 \item[-details] Performs detailed analysis for locations
   and surnames.
-\item[-min] Prints only locations and names that occur at
+\item[-min <min>] Prints only locations and names that occur at
   least \texttt{<min>} times.
 \item[-cluster] Performs cluster analysis on the cousins
   who's ancestral surnames or locations match \texttt{<cluster>}.
-\item[-exclude] Excludes cousins who's ancestral surnames or
-  locations match \texttt{<exclude>}. 
-
+\item[-exclude <exclude>] Excludes cousins who's ancestral surnames or
+  locations match \texttt{<exclude>}.
+\item[-csvout <filename>] Writes a table of locations in CSV format
+  to a file. Useful to create a heat map.
 \end{description}
 
 
@@ -127,6 +128,39 @@ may not always be the latest version.
   \texttt{familyties N123456\_Family\_Finder\_Matches\_20140920.csv}\\
   You do not need to type in the full filename. Just start typing and
   hit the TAB key for auto completion.
+\end{enumerate}
+
+
+\section{How to Create a Heat Map}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=13cm]{ancestral-locations.png}
+\caption{Ancestral locations of my family. It is hard
+to believe that this all happened within the relatively 
+short time period of a genealogical time frame (about 400 years).}
+\end{figure}
+
+It is easy to create a heat map of your familie's ancestral locations
+by saving the results to a file and upload them to
+\href{http://www.openheatmap.com/}{OpenHeatMap}.
+Here is how it is done:
+
+\begin{enumerate}
+\item Save the results to a file as Comma Separated Values:\\
+  \texttt{familyties -csvout="Locations.csv"  N12345\_Family\_Finder\_Matches.csv}
+\item Open your web browser and go to
+      \href{http://www.openheatmap.com/}{http://www.openheatmap.com}.
+	\begin{enumerate}
+	\item Click on \emph{Create your map}.
+	\item \emph{Excel or CSV file}.
+	\item \emph{Upload} your results file,
+            in this example \emph{Locations.csv}.
+	\item \emph{View your map} and adjust the settings until you like it.
+	\item \emph{Save \& view}
+	\end{enumerate}
+\item You are done! You can share your map via social networks
+  or take a screenshot of it.
 \end{enumerate}
 
 
