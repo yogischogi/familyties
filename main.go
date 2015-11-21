@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 
 	"github.com/yogischogi/familyties/cousins"
 )
@@ -33,13 +34,26 @@ func main() {
 	// Exclude
 	if *exclude != "" {
 		fmt.Printf("Cousins who's ancestral surnames or locations match %v are excluded from analysis.\r\n\r\n", *exclude)
-		ancestries = ancestries.Exclude(*exclude)
+		excludes := strings.Split(*exclude, ",")
+		for _, name := range excludes {
+			name = strings.TrimSpace(name)
+			ancestries = ancestries.Exclude(name)
+		}
 	}
 
 	// Filter ancestral information for cluster analysis.
 	if *cluster != "" {
 		fmt.Printf("Cluster analysis for %v.\r\n\r\n", *cluster)
-		ancestries = ancestries.Filter(*cluster)
+		includes := strings.Split(*cluster, ",")
+		var newAncestries cousins.Ancestries
+		rest := ancestries
+		for _, name := range includes {
+			name = strings.TrimSpace(name)
+			newElements := rest.Include(name)
+			rest = rest.Exclude(name)
+			newAncestries = append(newAncestries, newElements...)
+		}
+		ancestries = newAncestries
 	}
 	if len(ancestries) == 0 {
 		fmt.Print("No data found.\r\n")

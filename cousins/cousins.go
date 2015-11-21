@@ -417,9 +417,9 @@ func (a *Ancestries) frequenciesOf(names map[string]bool, accFunc func(Ancestry)
 	return result
 }
 
-// Filter returns only Ancestries which contain the specified name.
+// Include returns only Ancestries which contain the specified name.
 // The name may be a location or a surname.
-func (a *Ancestries) Filter(name string) Ancestries {
+func (a *Ancestries) Include(name string) Ancestries {
 	result := make([]Ancestry, 0, len(*a))
 	for _, ancestry := range *a {
 		if ancestry.Contains(name) {
