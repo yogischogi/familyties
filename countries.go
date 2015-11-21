@@ -1,5 +1,14 @@
 package main
 
+// PredefinedCountries returns a set of predefined countries.
+func PredefinedCountries() map[string]bool {
+	result := make(map[string]bool)
+	for _, country := range predefinedCountries {
+		result[country] = true
+	}
+	return result
+}
+
 // predefinedCountries is an array of predefined countries for quick analysis.
 var predefinedCountries = []string{
 	"Afghanistan",
@@ -168,7 +177,7 @@ var predefinedCountries = []string{
 	"Zimbabwe",
 }
 
-var USStates = []string{
+var usStates = []string{
 	"alabama",
 	"alaska",
 	"arkansas",

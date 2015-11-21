@@ -47,7 +47,7 @@ func main() {
 	}
 
 	// Quick analysis for predefined countries.
-	countries := ancestries.FrequenciesOf(predefinedCountries)
+	countries := ancestries.FrequenciesOf(PredefinedCountries())
 	sort.Stable(sort.Reverse(&countries))
 	fmt.Print("--- Quick search for predefined countries ---\r\n")
 	fmt.Print("Number of cousins:  Ancestry from:\r\n")
@@ -68,18 +68,14 @@ func main() {
 			for _, country := range predefinedCountries {
 				locations[country] = true
 			}
-			for _, state := range USStates {
+			for _, state := range usStates {
 				locations[state] = true
 			}
 			delete(locations, "US")
 			delete(locations, "USA")
-			regionList := []string{}
-			for loc := range locations {
-				regionList = append(regionList, loc)
-			}
 
 			// Calculate frequencies of cousins.
-			regionFreqs := ancestries.FrequenciesOf(regionList)
+			regionFreqs := ancestries.FrequenciesOf(locations)
 			sort.Stable(sort.Reverse(&regionFreqs))
 
 			// Write result to file.

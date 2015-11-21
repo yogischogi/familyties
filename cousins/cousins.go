@@ -10,27 +10,29 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"unicode"
 )
+
+// minTokenLen is the minimal length of a token.
+const minTokenLen = 2
 
 // tokenDelimiters separate semantical units of text. Each token delimiter is also a word delimiter.
 var tokenDelimiters = map[rune]bool{',': true, '/': true, '(': true, ')': true, '-': true, '&': true, ';': true}
 
-// wordDelimiters separate words. Each token delimiter is also a word delimiter.
-var wordDelimiters = map[rune]bool{' ': true, '\t': true}
-
-// Ancestry contains a cousin's ancestral surnames and locations.
+// Ancestry contains one cousin's ancestral surnames and locations.
 type Ancestry struct {
 	// line is the original line from the Family Finder matches file
 	// in small caps.
 	line string
-	// Words are the words contained in the line.
-	Words []string
+	// Words are the different words contained in the line.
+	Words map[string]bool
+	// Tokens are the different tokens contained in the line.
 	// A token consists of one or more words that belong together sematically,
 	// for example "United States of America".
-	Tokens []string
-	// Names are the ancestral surnames.
-	Names     []string
-	Locations []string
+	Tokens map[string]bool
+	// Names are the different ancestral surnames.
+	Names     map[string]bool
+	Locations map[string]bool
 }
 
 // NewAncestry creates an Ancstry from a single line of the
@@ -74,46 +76,28 @@ func NewAncestry(line string) Ancestry {
 			if len(locationString) > 1 {
 				locs := extractTokens(locationString)
 				locs = normalizeTokens(locs)
-				for _, location := range locs {
-					locations[location] = true
+				for loc, _ := range locs {
+					locations[loc] = true
 				}
 			}
 		}
 	}
-	resultNames := make([]string, 0, len(names))
-	for name, _ := range names {
-		resultNames = append(resultNames, name)
-	}
-	resultLocs := make([]string, 0, len(locations))
-	for location, _ := range locations {
-		resultLocs = append(resultLocs, location)
-	}
-	return Ancestry{line: line, Words: words, Tokens: tokens, Names: resultNames, Locations: resultLocs}
+	return Ancestry{line: line, Words: words, Tokens: tokens, Names: names, Locations: locations}
 }
 
 // Contains checks if the Ancestry contains name.
 // The method checks words and tokens.
 func (a *Ancestry) Contains(name string) bool {
 	name = strings.ToLower(name)
-	for _, n := range a.Words {
-		if n == name {
-			return true
-		}
-	}
-	for _, l := range a.Tokens {
-		if l == name {
-			return true
-		}
-	}
-	return false
+	return a.Words[name] || a.Tokens[name]
 }
 
 // normalizeTokens transforms the given tokens into a normalized form.
 // Abbreviations are expanded, some words are translated into English,
 // and junk is thrown away. The tokens should be converted to lower case
 // before calling this function.
-func normalizeTokens(tokens []string) []string {
-	result := make([]string, 0, len(tokens))
+func normalizeTokens(tokens map[string]bool) map[string]bool {
+	result := make(map[string]bool)
 
 	// dirtyTags is a map of tokens that are transformed
 	// into the normalized form.
@@ -242,29 +226,33 @@ func normalizeTokens(tokens []string) []string {
 		"vorpommern":               {"western pomerania"},
 		"w virginia":               {"west virginia", "usa"},
 	}
-	for _, token := range tokens {
+	for token, _ := range tokens {
 		// Check if token matches dirty tags.
-		if clean, ok := dirtyTags[token]; ok {
-			result = append(result, clean...)
+		if cleanTokens, ok := dirtyTags[token]; ok {
+			for _, clean := range cleanTokens {
+				result[clean] = true
+			}
 		} else {
 			// Check each single word of token for dirty matches.
 			words := strings.FieldsFunc(token, isWordDelimiter)
 			cleanWords := make([]string, 0, len(words))
 			for _, word := range words {
-				if clean, ok := dirtyTags[word]; ok {
-					if len(clean) == 1 {
-						cleanWords = append(cleanWords, clean...)
-					} else if len(clean) > 1 {
+				if cleanTokens, ok := dirtyTags[word]; ok {
+					if len(cleanTokens) == 1 {
+						cleanWords = append(cleanWords, cleanTokens...)
+					} else if len(cleanTokens) > 1 {
 						// Word has been substituted by several tokens.
-						result = append(result, clean...)
+						for _, clean := range cleanTokens {
+							result[clean] = true
+						}
 					}
 				} else {
 					cleanWords = append(cleanWords, word)
 				}
 			}
 			cleanToken := strings.Join(cleanWords, " ")
-			if len(cleanToken) > 0 {
-				result = append(result, cleanToken)
+			if len(cleanToken) >= minTokenLen {
+				result[cleanToken] = true
 			}
 		}
 	}
@@ -276,13 +264,13 @@ func normalizeTokens(tokens []string) []string {
 // a semantical unit, for example: United States of America.
 // White spaces at the beginning and end of each token
 // are truncated.
-func extractTokens(line string) []string {
+func extractTokens(line string) map[string]bool {
 	fields := strings.FieldsFunc(line, isTokenDelimiter)
-	result := make([]string, 0, len(fields))
+	result := make(map[string]bool)
 	for _, field := range fields {
 		field = strings.TrimFunc(field, isWordDelimiter)
-		if len(field) > 1 {
-			result = append(result, field)
+		if len(field) >= minTokenLen {
+			result[field] = true
 		}
 	}
 	return result
@@ -299,20 +287,20 @@ func isTokenDelimiter(c rune) bool {
 // extractWords returns the words from a line of text.
 // White spaces at the beginning and end of each word
 // are truncated.
-func extractWords(line string) []string {
+func extractWords(line string) map[string]bool {
 	fields := strings.FieldsFunc(line, isWordDelimiter)
-	result := make([]string, 0, len(fields))
+	result := make(map[string]bool)
 	for _, field := range fields {
 		field = strings.TrimSpace(field)
-		if len(field) > 1 {
-			result = append(result, field)
+		if len(field) >= minTokenLen {
+			result[field] = true
 		}
 	}
 	return result
 }
 
 func isWordDelimiter(c rune) bool {
-	if wordDelimiters[c] || tokenDelimiters[c] {
+	if unicode.IsSpace(c) || tokenDelimiters[c] {
 		return true
 	} else {
 		return false
@@ -369,68 +357,57 @@ func NewAncestries(filename string, namesCol int) (Ancestries, error) {
 	return result, nil
 }
 
-// Names returns a list of all ancestral surnames.
-// Double entries are eliminated.
-func (a *Ancestries) Names() []string {
-	return a.eliminateDoublesIn(func(a Ancestry) []string { return a.Names })
-}
-
-// Names returns a list of all ancestral locations.
-// Double entries are eliminated.
-func (a *Ancestries) Locations() []string {
-	return a.eliminateDoublesIn(func(a Ancestry) []string { return a.Locations })
-}
-
-// eliminateDoublesIn eliminates all double entries from a
-// specified field of Ancestries.
-// accFunc returns the field that contains the data.
-func (a *Ancestries) eliminateDoublesIn(accFunc func(Ancestry) []string) []string {
-	// Eliminate double entries.
-	names := make(map[string]bool)
+// Names returns a set of all ancestral surnames.
+func (a *Ancestries) Names() map[string]bool {
+	result := make(map[string]bool)
 	for _, ancestry := range *a {
-		for _, token := range accFunc(ancestry) {
-			names[token] = true
+		for name, _ := range ancestry.Names {
+			result[name] = true
 		}
 	}
-	// Convert to array because we may need to sort it later.
-	result := make([]string, 0, len(names))
-	for name, _ := range names {
-		result = append(result, name)
+	return result
+}
+
+// Locations returns a set of all ancestral locations.
+func (a *Ancestries) Locations() map[string]bool {
+	result := make(map[string]bool)
+	for _, ancestry := range *a {
+		for loc, _ := range ancestry.Locations {
+			result[loc] = true
+		}
 	}
 	return result
 }
 
 // FrequenciesOf determines the Frequencies of the specified words.
 // The words are compared against the Ancestries Word field.
-func (a *Ancestries) FrequenciesOf(words []string) Frequencies {
-	return a.frequenciesOf(words, func(a Ancestry) []string { return a.Words })
+func (a *Ancestries) FrequenciesOf(words map[string]bool) Frequencies {
+	return a.frequenciesOf(words, func(anc Ancestry) map[string]bool { return anc.Words })
 }
 
 // FrequenciesOfLocations determines how many cousins share which
 // ancestral locations.
 func (a *Ancestries) FrequenciesOfLocations() Frequencies {
-	return a.frequenciesOf(a.Locations(), func(a Ancestry) []string { return a.Locations })
+	return a.frequenciesOf(a.Locations(), func(anc Ancestry) map[string]bool { return anc.Locations })
 }
 
 // FrequenciesOfNames determines how many cousins share which
 // ancestral surnames.
 func (a *Ancestries) FrequenciesOfNames() Frequencies {
-	return a.frequenciesOf(a.Names(), func(a Ancestry) []string { return a.Names })
+	return a.frequenciesOf(a.Names(), func(anc Ancestry) map[string]bool { return anc.Names })
 }
 
-// frequenciesOf calculates the Frequencies of the specified list of names.
+// frequenciesOf calculates the Frequencies of the specified set of names.
 // The access function accFunc determines which field of Ancestries should
 // be used for the calculation.
-func (a *Ancestries) frequenciesOf(names []string, accFunc func(Ancestry) []string) Frequencies {
+func (a *Ancestries) frequenciesOf(names map[string]bool, accFunc func(Ancestry) map[string]bool) Frequencies {
 	result := make([]Frequency, 0, len(names))
-	for _, name := range names {
+	for name, _ := range names {
 		count := 0
 		for _, ancestry := range *a {
-			for _, token := range accFunc(ancestry) {
-				if token == strings.ToLower(name) {
-					count++
-					break
-				}
+			namesInAnc := accFunc(ancestry)
+			if namesInAnc[strings.ToLower(name)] {
+				count++
 			}
 		}
 		if count > 0 {
@@ -467,9 +444,10 @@ func (a *Ancestries) Exclude(name string) Ancestries {
 // Frequency shows the amount of cousins who share
 // a specific ancestral surname or location.
 type Frequency struct {
-	NCousins int
 	// Name is the ancestral name or location.
 	Name string
+	// NCousins shows how many cousins share the same ancestral name or location.
+	NCousins int
 }
 
 // Frequencies is a list of Frequency that satisfies the sort.Interface.
