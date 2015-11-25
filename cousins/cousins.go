@@ -387,14 +387,14 @@ func (a *Ancestries) FrequenciesOf(words map[string]bool) Frequencies {
 
 // FrequenciesOfLocations determines how many cousins share which
 // ancestral locations.
-func (a *Ancestries) FrequenciesOfLocations() Frequencies {
-	return a.frequenciesOf(a.Locations(), func(anc Ancestry) map[string]bool { return anc.Locations })
+func (a *Ancestries) FrequenciesOfLocations(locations map[string]bool) Frequencies {
+	return a.frequenciesOf(locations, func(anc Ancestry) map[string]bool { return anc.Locations })
 }
 
 // FrequenciesOfNames determines how many cousins share which
 // ancestral surnames.
-func (a *Ancestries) FrequenciesOfNames() Frequencies {
-	return a.frequenciesOf(a.Names(), func(anc Ancestry) map[string]bool { return anc.Names })
+func (a *Ancestries) FrequenciesOfNames(names map[string]bool) Frequencies {
+	return a.frequenciesOf(names, func(anc Ancestry) map[string]bool { return anc.Names })
 }
 
 // frequenciesOf calculates the Frequencies of the specified set of names.
@@ -436,6 +436,158 @@ func (a *Ancestries) Exclude(name string) Ancestries {
 	for _, ancestry := range *a {
 		if !ancestry.Contains(name) {
 			result = append(result, ancestry)
+		}
+	}
+	return result
+}
+
+// AncestriesList bundles a list of Ancestries.
+// This is needed when working with multiple input files and set operations.
+type AncestriesList struct {
+	elements        []Ancestries
+	commonNames     map[string]bool
+	commonLocations map[string]bool
+}
+
+// NewAncestriesList loads a list of Ancestries from multiple files
+// in CSV format.
+// The filenames are given as a comma separated string.
+// namesCol is the column number of the input file which contains the
+// ancestral information.
+func NewAncestriesList(filenames string, namesCol int) (AncestriesList, error) {
+	var result AncestriesList
+	names := strings.Split(filenames, ",")
+	for _, filename := range names {
+		filename = strings.TrimSpace(filename)
+		ancestries, err := NewAncestries(filename, namesCol)
+		if err != nil {
+			return result, err
+		}
+		result.elements = append(result.elements, ancestries)
+	}
+	return result, nil
+}
+
+// CommonNames returns the names that occur in
+// all elements of the AncestriesList a.
+func (a *AncestriesList) CommonNames() map[string]bool {
+	if a.commonNames != nil {
+		return a.commonNames
+	}
+	result := a.elements[0].Names()
+	for _, anc := range a.elements[1:] {
+		result = commons(result, anc.Names())
+	}
+	return result
+}
+
+// CommonLocations returns the locations that occur in
+// all elements of the AncestriesList a.
+func (a *AncestriesList) CommonLocations() map[string]bool {
+	if a.commonLocations != nil {
+		return a.commonLocations
+	}
+	result := a.elements[0].Locations()
+	for _, anc := range a.elements[1:] {
+		result = commons(result, anc.Locations())
+	}
+	return result
+}
+
+// commons returns the keys that are common to a and b.
+func commons(a, b map[string]bool) map[string]bool {
+	commonNames := make(map[string]bool)
+	for name, _ := range a {
+		if b[name] {
+			commonNames[name] = true
+		}
+	}
+	return commonNames
+}
+
+// Unite unites the elements of the AncestriesList.
+// Double entries are eliminated.
+func (a *AncestriesList) Unite() Ancestries {
+	var result Ancestries
+	// Make a set of elements that are already included in the result.
+	included := make(map[string]bool)
+	// Include all ancestries that are not yet in the result.
+	for _, ancs := range a.elements {
+		for _, anc := range ancs {
+			if !included[anc.line] {
+				result = append(result, anc)
+				included[anc.line] = true
+			}
+		}
+	}
+	return result
+}
+
+// Intersect returns only those Ancestries which contain names and locations
+// that occur in all Ancestries.
+func (a *AncestriesList) Intersect() Ancestries {
+	var result Ancestries
+	commonNames := a.CommonNames()
+	commonLocations := a.CommonLocations()
+	// Make a set of elements that are already included in the result.
+	included := make(map[string]bool)
+	// Loop over all ancestries and include the ones with common names and locations.
+	for _, ancs := range a.elements {
+		for _, anc := range ancs {
+			for name, _ := range anc.Names {
+				for loc, _ := range anc.Locations {
+					if commonNames[name] && commonLocations[loc] && !included[anc.line] {
+						result = append(result, anc)
+						included[anc.line] = true
+						break
+					}
+				}
+			}
+		}
+	}
+	return result
+}
+
+// IntersectByNames returns only those Ancestries which contain names
+// that occur in all Ancestries.
+func (a *AncestriesList) IntersectByNames() Ancestries {
+	var result Ancestries
+	commonNames := a.CommonNames()
+	// Make a set of elements that are already included in the result.
+	included := make(map[string]bool)
+	// Loop over all ancestries and include the ones with common names.
+	for _, ancs := range a.elements {
+		for _, anc := range ancs {
+			for name, _ := range anc.Names {
+				if commonNames[name] && !included[anc.line] {
+					result = append(result, anc)
+					included[anc.line] = true
+					break
+				}
+			}
+
+		}
+	}
+	return result
+}
+
+// IntersectByLocations returns only those Ancestries which contain locations
+// that occur in all Ancestries.
+func (a *AncestriesList) IntersectByLocations() Ancestries {
+	var result Ancestries
+	commonLocations := a.CommonLocations()
+	// Make a set of elements that are already included in the result.
+	included := make(map[string]bool)
+	// Loop over all ancestries and include the ones with common locations.
+	for _, ancs := range a.elements {
+		for _, anc := range ancs {
+			for loc, _ := range anc.Locations {
+				if commonLocations[loc] && !included[anc.line] {
+					result = append(result, anc)
+					included[anc.line] = true
+					break
+				}
+			}
 		}
 	}
 	return result

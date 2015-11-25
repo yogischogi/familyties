@@ -1,12 +1,12 @@
 \select@language {english}
 \contentsline {section}{\numberline {1}Introduction}{1}{section.1}
 \contentsline {section}{\numberline {2}Command Line Options}{2}{section.2}
-\contentsline {section}{\numberline {3}Installation}{2}{section.3}
-\contentsline {subsection}{\numberline {3.1}Windows}{2}{subsection.3.1}
+\contentsline {section}{\numberline {3}Installation}{3}{section.3}
+\contentsline {subsection}{\numberline {3.1}Windows}{3}{subsection.3.1}
 \contentsline {subsection}{\numberline {3.2}Linux Mint}{3}{subsection.3.2}
 \contentsline {subsection}{\numberline {3.3}FreeBSD, Mac OS X}{3}{subsection.3.3}
-\contentsline {section}{\numberline {4}First Usage}{3}{section.4}
+\contentsline {section}{\numberline {4}First Usage}{4}{section.4}
 \contentsline {section}{\numberline {5}How to Create a Heat Map}{4}{section.5}
-\contentsline {section}{\numberline {6}Examples}{4}{section.6}
+\contentsline {section}{\numberline {6}Examples}{5}{section.6}
 \contentsline {section}{\numberline {7}Example Session}{5}{section.7}
-\contentsline {section}{\numberline {8}How You Can Help}{6}{section.8}
+\contentsline {section}{\numberline {8}How You Can Help}{7}{section.8}

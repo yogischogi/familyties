@@ -49,7 +49,7 @@ matches files. You can use it to
 Familyties is a command line program. It is invoked by
 
 \vspace{1em}
-\noindent\texttt{familyties [options] <Family Finder matches file>}
+\noindent\texttt{familyties [options] [<Family Finder matches file>]}
 
 \vspace{1em}
 \noindent Options may be given in arbitrary order.
@@ -58,14 +58,24 @@ Familyties is a command line program. It is invoked by
 \item[-help] Prints available program options.
 \item[-details] Performs detailed analysis for locations
   and surnames.
-\item[-min <min>] Prints only locations and names that occur at
+\item[-min \texttt{<min>}] Prints only locations and names that occur at
   least \texttt{<min>} times.
-\item[-cluster] Performs cluster analysis on the cousins
+\item[-cluster \texttt{<cluster>}] Performs cluster analysis on the cousins
   who's ancestral surnames or locations match \texttt{<cluster>}.
-\item[-exclude <exclude>] Excludes cousins who's ancestral surnames or
+  Accepts multiple clusters separated by commas.
+\item[-exclude \texttt{<exclude>}] Excludes cousins who's ancestral surnames or
   locations match \texttt{<exclude>}.
-\item[-csvout <filename>] Writes a table of locations in CSV format
+  Accepts multiple excludes separated by commas.
+\item[-csvout \texttt{<filename>}] Writes a table of locations in CSV format
   to a file. Useful to create a heat map.
+\item[-unite \texttt{<file1,file2,\dots>}]
+  Merges input files separated by commas.
+\item[-intersect \texttt{<file1,file2,\dots>}]
+  Intersects input files separated by commas.
+\item[-intersectbynames \texttt{<file1,file2,\dots>}]
+  Intersects input files separated by commas.
+\item[-intersectbylocations \texttt{<file1,file2,\dots>}]
+  Intersects input files separated by commas.
 \end{description}
 
 
