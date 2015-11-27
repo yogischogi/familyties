@@ -8,5 +8,5 @@
 \contentsline {section}{\numberline {4}First Usage}{4}{section.4}
 \contentsline {section}{\numberline {5}How to Create a Heat Map}{4}{section.5}
 \contentsline {section}{\numberline {6}Examples}{5}{section.6}
-\contentsline {section}{\numberline {7}Example Session}{5}{section.7}
+\contentsline {section}{\numberline {7}Example Session}{6}{section.7}
 \contentsline {section}{\numberline {8}How You Can Help}{7}{section.8}

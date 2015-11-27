@@ -72,6 +72,9 @@ Familyties is a command line program. It is invoked by
   Merges input files separated by commas.
 \item[-intersect \texttt{<file1,file2,\dots>}]
   Intersects input files separated by commas.
+  Evaluates only ancestral informations that are common to all input files.
+\item[-intersectbynalo \texttt{<file1,file2,\dots>}]
+  Intersects input files separated by commas looking for common names and locations.
 \item[-intersectbynames \texttt{<file1,file2,\dots>}]
   Intersects input files separated by commas.
 \item[-intersectbylocations \texttt{<file1,file2,\dots>}]
@@ -193,6 +196,10 @@ Here is how it is done:
    are often significantly distorted if you want to find out something
    about your European ancestry only. In this case the exclude option
    is very useful.
+\item Look for family connections that are common to you and a cousin:\\
+   \texttt{familyties -intersect myresults.csv,cousinsresults.csv}
+\item Explore the family relations of your parents:\\
+   \texttt{familyties -unite momsresults.csv,dadsresults.csv}
 \end{enumerate}
 
 

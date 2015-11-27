@@ -23,6 +23,7 @@ func main() {
 		csvout               = flag.String("csvout", "", "Writes countries and frequencies of cousins to a file in CSV format.")
 		unite                = flag.String("unite", "", "Merges input files separated by commas.")
 		intersect            = flag.String("intersect", "", "Intersects input files separated by commas.")
+		intersectbynalo      = flag.String("intersectbynalo", "", "Intersects input files separated by commas looking for common names and locations.")
 		intersectbynames     = flag.String("intersectbynames", "", "Intersects input files separated by commas.")
 		intersectbylocations = flag.String("intersectbylocations", "", "Intersects input files separated by commas.")
 	)
@@ -66,8 +67,19 @@ func main() {
 			fmt.Printf("Error reading Family Finder matches CSV file %v.\n", err)
 			os.Exit(1)
 		}
-		fmt.Printf("Intersecting files %v, looking for common names and locations.\r\n\r\n", *intersect)
+		fmt.Printf("Intersecting files %v, looking for identical ancestral information.\r\n\r\n", *intersect)
 		ancestries = ancestriesList.Intersect()
+		names = ancestriesList.CommonNames()
+		locations = ancestriesList.CommonLocations()
+		locationsIntersected = true
+	case *intersectbynalo != "":
+		ancestriesList, err := cousins.NewAncestriesList(*intersectbynalo, *namescol-1)
+		if err != nil {
+			fmt.Printf("Error reading Family Finder matches CSV file %v.\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Intersecting files %v, looking for common names and locations.\r\n\r\n", *intersectbynalo)
+		ancestries = ancestriesList.IntersectByNamesAndLocations()
 		names = ancestriesList.CommonNames()
 		locations = ancestriesList.CommonLocations()
 		locationsIntersected = true
@@ -77,7 +89,7 @@ func main() {
 			fmt.Printf("Error reading Family Finder matches CSV file %v.\n", err)
 			os.Exit(1)
 		}
-		fmt.Printf("Intersecting files %v, looking for common names.\r\n\r\n", *intersect)
+		fmt.Printf("Intersecting files %v, looking for common names.\r\n\r\n", *intersectbynames)
 		ancestries = ancestriesList.IntersectByNames()
 		names = ancestriesList.CommonNames()
 		locations = ancestries.Locations()
@@ -87,7 +99,7 @@ func main() {
 			fmt.Printf("Error reading Family Finder matches CSV file %v.\n", err)
 			os.Exit(1)
 		}
-		fmt.Printf("Intersecting files %v, looking for common locations.\r\n\r\n", *intersect)
+		fmt.Printf("Intersecting files %v, looking for common locations.\r\n\r\n", *intersectbylocations)
 		ancestries = ancestriesList.IntersectByLocations()
 		names = ancestries.Names()
 		locations = ancestriesList.CommonLocations()

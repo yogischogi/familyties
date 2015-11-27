@@ -379,6 +379,16 @@ func (a *Ancestries) Locations() map[string]bool {
 	return result
 }
 
+// Lines returns a set of the ancestral informations found
+// in the Family Finder matches CSV file.
+func (a *Ancestries) Lines() map[string]bool {
+	result := make(map[string]bool)
+	for _, ancestry := range *a {
+		result[ancestry.line] = true
+	}
+	return result
+}
+
 // FrequenciesOf determines the Frequencies of the specified words.
 // The words are compared against the Ancestries Word field.
 func (a *Ancestries) FrequenciesOf(words map[string]bool) Frequencies {
@@ -523,9 +533,41 @@ func (a *AncestriesList) Unite() Ancestries {
 	return result
 }
 
-// Intersect returns only those Ancestries which contain names and locations
-// that occur in all Ancestries.
+// Intersect returns only those Ancestries for which the ancestral
+// information matches in all Ancestries.
 func (a *AncestriesList) Intersect() Ancestries {
+	var result Ancestries
+
+	// Make a list of the original lines containing ancestral information
+	// for each Ancestries.
+	ancestralLines := make([]map[string]bool, len(a.elements), len(a.elements))
+	for i := 0; i < len(a.elements); i++ {
+		ancestralLines[i] = a.elements[i].Lines()
+	}
+
+	// Search for the lines that are common to each Ancestries.
+	commonLines := ancestralLines[0]
+	for _, info := range ancestralLines[1:] {
+		commonLines = commons(commonLines, info)
+	}
+
+	// Make a set of elements that are already included in the result.
+	included := make(map[string]bool)
+	// Loop over all ancestries and include the ones who match a commonLine.
+	for _, ancs := range a.elements {
+		for _, anc := range ancs {
+			if commonLines[anc.line] && !included[anc.line] {
+				result = append(result, anc)
+				included[anc.line] = true
+			}
+		}
+	}
+	return result
+}
+
+// IntersectByNamesAndLocations returns only those Ancestries which contain names and locations
+// that occur in all Ancestries.
+func (a *AncestriesList) IntersectByNamesAndLocations() Ancestries {
 	var result Ancestries
 	commonNames := a.CommonNames()
 	commonLocations := a.CommonLocations()
